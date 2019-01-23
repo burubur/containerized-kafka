@@ -1,0 +1,46 @@
+---
+version: '3'
+services:
+  zookeeper:
+    container_name: kafka_zookeeper
+    image: confluentinc/cp-zookeeper:latest
+    network_mode: bridge
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 22181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "22181:22181"
+    extra_hosts:
+      - "kafka-bridge:127.0.0.1"
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:latest
+    network_mode: bridge
+    depends_on:
+      - zookeeper
+    links:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:22181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "29092:29092"
+    extra_hosts:
+      - "kafka-bridge:127.0.0.1"
+  kafka_manager:
+    container_name: kafka_manager
+    image: sheepkiller/kafka-manager:latest
+    network_mode: bridge
+    ports:
+      - "29000:9000"
+    extra_hosts:
+      - "kafka-bridge:127.0.0.1"
+    links:
+      - zookeeper
+      - kafka
+    environment:
+      ZK_HOSTS: zookeeper:22181
+      APPLICATION_SECRET: secret
+      KM_ARGS: -Djava.net.preferIPv4Stack=true
