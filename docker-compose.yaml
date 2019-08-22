@@ -1,4 +1,3 @@
----
 version: '3'
 services:
   zookeeper:
@@ -12,8 +11,8 @@ services:
       - "22181:22181"
     extra_hosts:
       - "kafka-bridge:127.0.0.1"
-  kafka:
-    container_name: kafka
+  kafka_broker:
+    container_name: kafka_broker
     image: confluentinc/cp-kafka:latest
     network_mode: bridge
     depends_on:
@@ -29,18 +28,3 @@ services:
       - "29092:29092"
     extra_hosts:
       - "kafka-bridge:127.0.0.1"
-  kafka_manager:
-    container_name: kafka_manager
-    image: sheepkiller/kafka-manager:latest
-    network_mode: bridge
-    ports:
-      - "29000:9000"
-    extra_hosts:
-      - "kafka-bridge:127.0.0.1"
-    links:
-      - zookeeper
-      - kafka
-    environment:
-      ZK_HOSTS: zookeeper:22181
-      APPLICATION_SECRET: secret
-      KM_ARGS: -Djava.net.preferIPv4Stack=true
